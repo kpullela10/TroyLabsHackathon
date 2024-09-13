@@ -1,0 +1,112 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RevSend ML Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      input,
+      button {
+        margin: 5px 0;
+      }
+      #chart {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>RevSend ML Dashboard</h1>
+
+    <form id="dataForm">
+      <input type="text" id="feature1" placeholder="Feature 1" required />
+      <input type="text" id="feature2" placeholder="Feature 2" required />
+      <input type="text" id="feature3" placeholder="Feature 3" required />
+      <select id="purchased" required>
+        <option value="true">Purchased</option>
+        <option value="false">Not Purchased</option>
+      </select>
+      <button type="submit">Add Data</button>
+    </form>
+
+    <button id="getInsights">Get Insights</button>
+
+    <div id="chart">
+      <canvas id="insightsChart"></canvas>
+    </div>
+
+    <script>
+      const dataForm = document.getElementById("dataForm");
+      const getInsightsBtn = document.getElementById("getInsights");
+      let chart;
+
+      dataForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = {
+          feature1: document.getElementById("feature1").value,
+          feature2: document.getElementById("feature2").value,
+          feature3: document.getElementById("feature3").value,
+          purchased: document.getElementById("purchased").value === "true",
+        };
+
+        await fetch("/add_data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        dataForm.reset();
+      });
+
+      getInsightsBtn.addEventListener("click", async () => {
+        const response = await fetch("/get_insights");
+        const insights = await response.json();
+
+        if (insights.error) {
+          alert(insights.error);
+          return;
+        }
+
+        const ctx = document.getElementById("insightsChart").getContext("2d");
+
+        if (chart) {
+          chart.destroy();
+        }
+
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: Object.keys(insights),
+            datasets: [
+              {
+                label: "Feature Importance",
+                data: Object.values(insights),
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

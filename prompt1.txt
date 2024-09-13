@@ -1,0 +1,7 @@
+prompt: revsend is having difficulty making business strategy decisions for growth. using code, how can revsend gain more clarity on what their customers want? what data should be collected, how should they analyze it, and what actions should they take?
+
+
+- set up event tracking and product analytics using mixpanel
+- set up a dashbaord with certain product analytics 
+- machine learning to track whats actually correlated with a conversion
+- what type of algorithm should i use?
